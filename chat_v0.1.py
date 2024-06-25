@@ -96,8 +96,8 @@ def retriever_func(uploaded_file):
             data = loader.load()
 
         text_splitter = RecursiveCharacterTextSplitter(
-                        chunk_size=1000, 
-                        chunk_overlap=200, 
+                        chunk_size=chunk_size, 
+                        chunk_overlap=chunk_overlap, 
                         add_start_index=True
                         )
         all_splits = text_splitter.split_documents(data)
@@ -140,8 +140,7 @@ def chat(temperature, model_name):
         if session_id not in store:
             store[session_id] = ChatMessageHistory()
         return store[session_id]
-
-
+    
     with_message_history = RunnableWithMessageHistory(
         runnable,
         get_session_history,
