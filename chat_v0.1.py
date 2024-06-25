@@ -7,7 +7,7 @@ from streamlit_chat import message
 ### Import Libraries
 #---------------------------------------------------------------------------------------------------------------------------------
 import tempfile  
-from langchain.document_loaders.csv_loader import CSVLoader 
+from langchain_community.document_loaders import CSVLoader 
 from langchain.embeddings import HuggingFaceEmbeddings 
 from langchain.vectorstores import FAISS
 from langchain.llms import CTransformers
