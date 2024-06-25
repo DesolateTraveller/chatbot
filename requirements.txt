@@ -12,3 +12,4 @@ ctransformers
 gunicorn
 langchain-community
 seaborn
+langchain-experimental
