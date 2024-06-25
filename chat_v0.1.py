@@ -2,10 +2,16 @@
 ### Authenticator
 #---------------------------------------------------------------------------------------------------------------------------------
 import streamlit as st
+from streamlit_chat import message
 #---------------------------------------------------------------------------------------------------------------------------------
 ### Import Libraries
 #---------------------------------------------------------------------------------------------------------------------------------
-
+import tempfile  
+from langchain.document_loaders.csv_loader import CSVLoader 
+from langchain.embeddings import HuggingFaceEmbeddings 
+from langchain.vectorstores import FAISS
+from langchain.llms import CTransformers
+from langchain.chains import ConversationalRetrievalChain
 #---------------------------------------------------------------------------------------------------------------------------------
 ### Title and description for your Streamlit app
 #---------------------------------------------------------------------------------------------------------------------------------
@@ -22,6 +28,7 @@ st.info('**Disclaimer : :blue[Thank you for visiting the app] | Unauthorized use
 #----------------------------------------
 # Set the background image
 st.divider()
+
 #---------------------------------------------------------------------------------------------------------------------------------
 ### LLM Hyperparameters
 #---------------------------------------------------------------------------------------------------------------------------------
@@ -48,3 +55,36 @@ with st.sidebar.popover("**:blue[:blue_book: Definition of LLM HyperParameters]*
             ''')
     
 st.sidebar.divider()
+
+#---------------------------------------------------------------------------------------------------------------------------------
+### Functions & Definitions
+#---------------------------------------------------------------------------------------------------------------------------------
+
+DB_FAISS_PATH = 'vectorstore/db_faiss'
+def load_llm():
+    llm = CTransformers(model="llama-2-7b-chat.ggmlv3.q8_0.bin",
+                        model_type="llama",
+                        max_new_tokens=max_tokens,
+                        temperature=temperature)
+    return llm
+
+#---------------------------------------------------------------------------------------------------------------------------------
+### Main App
+#---------------------------------------------------------------------------------------------------------------------------------
+
+uploaded_file = st.sidebar.file_uploader("Upload File", type="csv") 
+if uploaded_file:
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        tmp_file.write(uploaded_file.getvalue())
+        tmp_file_path = tmp_file.name # save file locally
+
+    loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8", csv_args={'delimiter': ','}) 
+    data = loader.load()
+    embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2',
+                                       model_kwargs={'device': 'cpu'}) 
+
+    db = FAISS.from_documents(data, embeddings) 
+    db.save_local(DB_FAISS_PATH) 
+    llm = load_llm() 
+
+    chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever=db.as_retriever())
