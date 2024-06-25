@@ -114,7 +114,7 @@ def chat(temperature, model_name):
     reset = st.sidebar.button("Reset Chat")
     uploaded_file = st.sidebar.file_uploader("Upload your CSV here 👇:", type="csv")
     retriever, vectorstore = retriever_func(uploaded_file)
-    llm = ChatOpenAI(model_name=model_name, temperature=temperature, streaming=True)
+    llm = ChatOpenAI(model_name=llm_model, temperature=temperature, streaming=True)
     def format_docs(docs):
         return "\n\n".join(doc.page_content for doc in docs)
     
@@ -201,7 +201,7 @@ def summary(model_name, temperature, top_p):
         gen_sum = st.button("Generate Summary")
         if gen_sum:
             # Initialize the OpenAI module, load and run the summarize chain
-            llm = ChatOpenAI(model_name=model_name, temperature=temperature)
+            llm = ChatOpenAI(model_name=llm_model, temperature=temperature)
             chain = load_summarize_chain(
                 llm=llm,
                 chain_type="map_reduce",
@@ -227,7 +227,7 @@ def analyze(temperature, model_name):
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
         df = pd.read_csv(tmp_file_path)
-        llm = ChatOpenAI(model=model_name, temperature=temperature)
+        llm = ChatOpenAI(model=llm_model, temperature=temperature)
         agent = create_pandas_dataframe_agent(llm, df, agent_type="openai-tools", verbose=True)
 
         if "messages" not in st.session_state:
