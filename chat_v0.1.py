@@ -52,8 +52,8 @@ st.divider()
 #stats_expander = st.sidebar.expander("**:blue[LLM HyperParameters]**", expanded=False)
 #with stats_expander: 
 with st.sidebar.popover("**:blue[:pushpin: LLM HyperParameters]**", help="Tune the hyperparameters whenever required"):    
-    llm_model = st.selectbox("**Select LLM**", ["anthropic.claude-v2:1","amazon.titan-text-express-v1","ai21.j2-ultra-v1","anthropic.claude-3-sonnet-20240229-v1:0"])
-    max_tokens = st.number_input("**Max Tokens**", value=250)
+    llm_model = st.selectbox("**Select LLM**", ["gpt-3.5-turbo", "gpt-4", "gpt-4-32k","gpt-3.5-turbo-16k","gpt-4-1106-preview"])
+    max_tokens = st.number_input("**Max Tokens**", value=3000)
     temperature= st.number_input(label="**Temperature (randomness)**",step=.1,format="%.2f", value=0.7)
     top_p= st.number_input(label="**top_p (cumulative probability)**",step=.01,format="%.2f", value=0.9)
     top_k= st.number_input(label="**top_k (top k most probable tokens)**",step=10, value=250)                                  
@@ -256,3 +256,20 @@ def analyze(temperature, model_name):
 user_api_key = st.sidebar.text_input(label="#### Enter OpenAI API key 👇", placeholder="Paste your openAI API key, sk-", type="password", key="openai_api_key")
 if user_api_key:
     st.sidebar.success("API key loaded", icon="🚀")
+
+# Define a dictionary with the function names and their respective functions
+functions = ["home","Chat with CSV","Summarize CSV","Analyze CSV",]
+    
+#st.subheader("Select any generator👇")
+# Create a selectbox with the function names as options
+selected_function = st.selectbox("Select a functionality", functions)
+if selected_function == "home":
+        home_page()
+elif selected_function == "Chat with CSV":
+        chat(temperature=temperature, model_name=llm_model)
+elif selected_function == "Summarize CSV":
+        summary(model_name=llm_model, temperature=temperature, top_p=top_p)
+elif selected_function == "Analyze CSV":
+        analyze(temperature=temperature, model_name=llm_model)
+else:
+        st.warning("You haven't selected any AI Functionality!!")
